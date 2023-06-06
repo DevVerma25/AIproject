@@ -1,0 +1,155 @@
+import pyttsx3  #pip install pyttsx3
+import datetime 
+import time
+from time import ctime
+import wikipedia 
+import speech_recognition as sr #pip install speedRecognition
+import os
+import webbrowser #pip install wikipedia
+import smtplib 
+from tkinter import *
+from tkinter import ttk
+from PIL import ImageTk,Image
+engine =pyttsx3.init('sapi5')
+voices=engine.getProperty('voices')
+engine.setProperty('voices',voices[0].id)
+
+def speak(audio):
+    engine.say(audio)
+    engine.runAndWait()  
+def wishMe():
+     hour=int(datetime.datetime.now().hour)
+     if hour>=0 and hour<12:
+         speak("Good Morning!")
+     elif hour>=12 and hour<=18:
+         speak("Good Afternoon!")
+     else: 
+         speak("Good Evening!")
+         callme()    
+     speak("i can perform the following functions")    
+print("1.open github")
+print("2.open Google")
+print("3.open Geeksforgeeks")
+print("3.open youtube")
+print("5.open vs code")
+print("6. play music")
+print("7. tell the time")
+print("8. open wikipedia")
+print("9. wish me")
+print("10. search location on Google map")
+print("11. record your notes")
+print("12. for quiting the Mark")     
+def takeCommand():
+    r=sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Listening....")
+        r.pause_threshold=1
+        audio=r.listen(source)       
+    try:
+        print("Recognizing...")
+        query=r.recognize_google(audio)
+        print(f"User said: {query}\n")    
+    except Exception as e:
+        print(e)
+        speak("Say that again please....")
+        print("Say that again please....")
+        return "None"   
+    return query
+def callme():
+    speak("My name is Mark")
+def function():
+        query=takeCommand().lower()
+        if 'wikipedia' in query:
+            speak('Searching Wikipedia...')
+            query=query.replace("wikipedia","")
+            results=wikipedia.summary(query,sentences=2)
+            speak("Accoring to Wikipedia")
+            # userText.set(results)
+            print(results)  
+            speak(results)    
+        elif 'who are you' in query:
+            speak("i am jarvis and i am your virtual assistant")    
+        elif 'wish me' in query:
+            wishMe()
+        elif 'search' in query:
+            speak("what do you want to search")      
+            query=takeCommand().lower()
+            url='http://google.com/search?q='+query
+            webbrowser.open(url)    
+        elif 'open get hub' in query:
+            webbrowser.open("github.com")    
+        elif 'open youtube' in query:
+            speak("what do you want to search")  
+            query=takeCommand().lower()
+            url='http://youtube.com/search?q='+query    
+            webbrowser.open(url)   
+        elif 'open google' in query:
+           speak("what do you want to search")  
+           query=takeCommand().lower()
+           url='http://google.com/search?q='+query
+           webbrowser.open(url)
+        elif 'play music' in query:
+            music_dir='C:\\song'
+            songs=os.listdir(music_dir)
+            print(songs)
+            os.startfile(os.path.join(music_dir,songs[0]))
+        elif 'open geeks for geeks' in query:   
+            webbrowser.open("geeksforgeeks.com")   
+        elif 'time' in query:
+            speak(f"Sir, the time is "+ctime())
+        elif 'open vs code' in query:
+            codepath="C:\\Users\\hp\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe"            
+            os.startfile(codepath)      
+        elif 'quit' in query:
+            exit()  
+        elif 'open map' in query:
+            speak("what location do you want to search")
+            query=takeCommand().lower()
+            url='https://www.google.co.in/maps/place/'+query
+            webbrowser.open(url) 
+        elif 'note' in query:
+            speak('ready to write your note')
+            newnote=takeCommand().lower()
+            filename="note.text"
+            with open(filename,"w") as newFile:
+                newFile.write(newnote)
+            speak('Note written successfully')
+                   
+                   
+root=Tk()  
+#App Title  
+root.title("Your VIrtual Assistant")  
+ttk.Label(root, text="MARK").pack()  
+#Create Panedwindow  
+panedwindow=ttk.Panedwindow(root, orient=HORIZONTAL)  
+panedwindow.pack(fill=BOTH, expand=True)  
+#Create Frams  
+fram1=ttk.Frame(panedwindow,width=600,height=600)
+fram1.pack()
+fram1.place(anchor='center', relx=0.5, rely=0.5)
+image=Image.open('images.jpg')
+img=image.resize((400,400))
+_img = ImageTk.PhotoImage(img) 
+label=Label(fram1,image=_img)
+label.pack()
+btn = Button(fram1, text='Speak', font=('railways', 10, 'bold'),bg='red', fg='white',command=function).pack(fill='x', expand='no')
+btn2 = Button(fram1, text='Close', font=('railways', 10,'bold'), bg='yellow', fg='black', command=root.destroy).pack(fill='x', expand='no')
+panedwindow.add(fram1, weight=1)  
+fram2=ttk.Frame(panedwindow,width=300,height=600) 
+text=Text(fram2,width=50,bg="black",pady=15,padx=15,height=27,foreground='white')
+text.insert(INSERT,"YOUR VIRTUAL ASSISTANT:\n")
+text.insert(INSERT,'Open Google for searching\n')
+text.insert(INSERT,'Wikipedia for information\n')
+text.insert(INSERT,'Open Youtube\n')
+text.insert(INSERT,'Open VS code\n')
+text.insert(INSERT,'Search location in Google maps\n')
+text.insert(INSERT,'Write notes using speech\n')
+text.insert(INSERT,'Play music\n')
+text.insert(INSERT,'Open GeeksforGeeks\n')
+text.insert(INSERT,'Open Github\n')
+text.insert(INSERT,'Tell the Time\n')
+text.pack()
+panedwindow.add(fram2, weight=1)
+
+wishMe()
+root.mainloop()
